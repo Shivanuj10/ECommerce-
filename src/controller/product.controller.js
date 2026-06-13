@@ -28,6 +28,45 @@ const createProduct = async (req, res) => {
   }
 };
 
+const getProducts = async (req, res) => {
+  try {
+    const products = await productModel
+      .find()
+      .populate("createdBy", "username email");
+
+    res.status(201).json({
+      count: products.length,
+      products,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
+const getSpecificProduct = async (req, res) => {
+  try {
+    const product = await productModel
+      .findById(req.params.id)
+      .populate("createdBy", "username email");
+
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found",
+      });
+    }
+
+    res.status(200).json({ product });
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
 module.exports = {
   createProduct,
+  getProducts,
+  getSpecificProduct,
 };
