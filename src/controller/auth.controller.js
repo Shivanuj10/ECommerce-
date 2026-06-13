@@ -99,7 +99,40 @@ const userLoginController = async (req, res) => {
   }
 };
 
+const userLogoutController = async (req, res) => {
+  try {
+    // Clear the cookie
+    res.clearCookie("token");
+
+    res.status(200).json({
+      message: "Logged out successfully",
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const userProfileController = async (req, res) => {
+  try {
+    // req.user is set by protect middleware
+    const user = await userModel.findById(req.user._id);
+
+    res.status(200).json({
+      user: {
+        username: user.username,
+        email: user.email,
+        address: user.address,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports = {
   userRegisterController,
   userLoginController,
+  userLogoutController,
+  userProfileController,
 };
