@@ -32,6 +32,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Address is required for registering"],
     },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
   },
   {
     timestamps: true,
