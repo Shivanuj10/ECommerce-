@@ -15,4 +15,18 @@ router.post(
 router.get("/", productController.getProducts);
 router.get("/:id", productController.getSpecificProduct);
 
+router.delete(
+  "/:id",
+  authMiddleware.authMiddleware,
+  adminMiddleware.adminMiddleware,
+  productController.deleteProductController,
+);
+
+router.put(
+  "/:id",
+  authMiddleware.authMiddleware,
+  adminMiddleware.adminMiddleware,
+  productController.updateProductController,
+);
+
 module.exports = router;

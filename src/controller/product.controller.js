@@ -65,8 +65,62 @@ const getSpecificProduct = async (req, res) => {
   }
 };
 
+const deleteProductController = async (req, res) => {
+  try {
+    const product = await productModel.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found",
+      });
+    }
+
+    await productModel.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      message: "Product deleted successfully",
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
+const updateProductController = async (req, res) => {
+  try {
+    const product = await productModel.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found",
+      });
+    }
+
+    const updatedProduct = await productModel.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    res.status(200).json({
+      product: updatedProduct,
+      message: "Product updated successfully",
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
 module.exports = {
   createProduct,
   getProducts,
   getSpecificProduct,
+  deleteProductController,
+  updateProductController,
 };
