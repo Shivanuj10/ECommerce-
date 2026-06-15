@@ -26,13 +26,14 @@ const getCartController = async (req, res) => {
 
 const addToCartController = async (req, res) => {
   try {
-    const { items } = req.body;
-    const { productId, quantity } = items[0];
+    // const { items } = req.body;
+
+    const { productId, quantity } = req.body;
 
     const product = await productModel.findById(productId);
-    console.log("The product is : ", items);
+    // console.log("The product is : ", items);
     console.log("Request body:", req.body);
-    console.log("Product ID:", { productId });
+    console.log("Product ID:", quantity);
 
     if (!product) {
       return res.status(404).json({
@@ -67,6 +68,10 @@ const addToCartController = async (req, res) => {
       }
       await cart.save();
     }
+    // const qty = Number(quantity);
+    product.stock -= quantity;
+
+    await product.save();
 
     await cart.populate("items.productId", "name price images");
 
