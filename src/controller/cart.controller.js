@@ -134,9 +134,47 @@ const clearCartController = async (req, res) => {
   }
 };
 
+const updateCartController = async (req, res) => {
+  try {
+    const { quantity } = req.body;
+    const { productId } = req.params;
+
+    const cart = await cartModel.findOne({
+      userId: req.user._id,
+    });
+
+    if (!cart) {
+      return res.status(404).json({
+        message: "Cart not found",
+      });
+    }
+
+    const itemIndex = cart.items.findIndex(
+      (item) => item.productId.toString() === productId,
+    );
+
+    if (itemIndex === -1) {
+      return res.status(404).json({ message: "Item not found in cart" });
+    }
+
+    cart.items[itemIndex].quantity = quantity;
+    await cart.save();
+
+    await cart.populate("items.productId", "name price images");
+
+    res.status(200).json({
+      cart,
+      message: "Cart updated successfully",
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports = {
   getCartController,
   addToCartController,
   removeCartController,
   clearCartController,
+  updateCartController,
 };

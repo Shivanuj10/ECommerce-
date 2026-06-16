@@ -15,6 +15,12 @@ router.post(
   cartController.addToCartController,
 );
 
+router.put(
+  "/:productId",
+  authMiddleware.authMiddleware,
+  cartController.updateCartController,
+);
+
 router.delete(
   "/clear",
   authMiddleware.authMiddleware,
