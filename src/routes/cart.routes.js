@@ -15,4 +15,16 @@ router.post(
   cartController.addToCartController,
 );
 
+router.delete(
+  "/clear",
+  authMiddleware.authMiddleware,
+  cartController.clearCartController,
+);
+
+router.delete(
+  "/:productId",
+  authMiddleware.authMiddleware,
+  cartController.removeCartController,
+);
+
 module.exports = router;

@@ -84,7 +84,59 @@ const addToCartController = async (req, res) => {
   }
 };
 
+const removeCartController = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    console.log("The product id is is it running this : ", productId);
+
+    const cart = await cartModel.findOne({ userId: req.user._id });
+
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    cart.items = cart.items.filter(
+      (item) => item.productId.toString() !== productId,
+    );
+
+    await cart.save();
+
+    res.status(200).json({
+      cart,
+      message: "Item removed from cart successfully",
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const clearCartController = async (req, res) => {
+  try {
+    const cart = await cartModel.findOne({ userId: req.user._id });
+
+    if (!cart) {
+      return res.status(404).json({
+        message: "Cart not found",
+      });
+    }
+
+    cart.items = [];
+    console.log("Cart items is : ", cart.items);
+
+    await cart.save();
+
+    res.status(200).json({
+      cart,
+      message: "Cart cleared successfully",
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports = {
   getCartController,
   addToCartController,
+  removeCartController,
+  clearCartController,
 };
