@@ -71,6 +71,70 @@ const placeOrderController = async (req, res) => {
   }
 };
 
+const getMyOrdersController = async (req, res) => {
+  try {
+    const orders = await orderModel
+      .find({ userId: req.user._id })
+      .populate("items.productId", "name price images")
+      .sort({ createdAt: -1 });
+
+    if (orders.length === 0) {
+      return res.status(200).json({
+        message: "No orders found",
+        orders: [],
+      });
+    }
+
+    res.status(200).json({
+      count: orders.length,
+      orders,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const getSingleOrderController = async (req, res) => {
+  try {
+    const order = await orderModel
+      .findById(req.params.id)
+      .populate("items.productId", "name price images")
+      .populate("userId", "username, email");
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.userId._id.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    res.status(200).json({ order });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const getAllOrdersController = async (req, res) => {
+  try {
+    const orders = await orderModel
+      .find()
+      .populate("items.productId", "name price")
+      .populate("userId", "username email")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      count: orders.length,
+      orders,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports = {
   placeOrderController,
+  getMyOrdersController,
+  getSingleOrderController,
+  getAllOrdersController,
 };
