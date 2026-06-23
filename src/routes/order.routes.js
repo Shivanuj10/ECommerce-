@@ -22,6 +22,12 @@ router.get(
   orderController.getSingleOrderController,
 );
 
+router.put(
+  "/:id/cancel",
+  authMiddleware.authMiddleware,
+  orderController.cancelOrderController,
+);
+
 router.get(
   "/",
   authMiddleware.authMiddleware,

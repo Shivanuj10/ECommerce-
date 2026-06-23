@@ -132,9 +132,48 @@ const getAllOrdersController = async (req, res) => {
   }
 };
 
+const cancelOrderController = async (req, res) => {
+  try {
+    const order = await orderModel.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "Not authorized",
+      });
+    }
+
+    if (!["pending", "processing"].includes(order.status)) {
+      return res.status(400).json({
+        message: `Order cannot be cancelled as it is already ${order.status}`,
+      });
+    }
+
+    for (const item of order.items) {
+      await productModel.findByIdAndUpdate(item.productId, {
+        $inc: { stock: item.quantity },
+      });
+    }
+
+    order.status = "cancelled";
+    await order.save();
+
+    res.status(200).json({
+      order,
+      message: "Order cancelled successfully",
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports = {
   placeOrderController,
   getMyOrdersController,
   getSingleOrderController,
   getAllOrdersController,
+  cancelOrderController,
 };
