@@ -35,4 +35,11 @@ router.get(
   orderController.getAllOrdersController,
 );
 
+router.put(
+  "/:id/status",
+  authMiddleware.authMiddleware,
+  adminMiddleware.adminMiddleware,
+  orderController.updateOrderStatusController,
+);
+
 module.exports = router;

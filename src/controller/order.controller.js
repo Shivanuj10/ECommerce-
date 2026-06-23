@@ -170,10 +170,39 @@ const cancelOrderController = async (req, res) => {
   }
 };
 
+const updateOrderStatusController = async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const order = await orderModel.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.status === "cancelled") {
+      return res.status(400).json({
+        message: "Cannot update a cancelled order",
+      });
+    }
+
+    order.status = status;
+    await order.save();
+
+    res.status(200).json({
+      order,
+      message: "Order status updated successfully",
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports = {
   placeOrderController,
   getMyOrdersController,
   getSingleOrderController,
   getAllOrdersController,
   cancelOrderController,
+  updateOrderStatusController,
 };
