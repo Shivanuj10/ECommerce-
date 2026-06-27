@@ -4,8 +4,10 @@ const bcrypt = require("bcrypt");
 
 const createProduct = async (req, res) => {
   try {
-    const { name, description, price, stock, category, images } = req.body;
+    const { name, description, price, stock, category } = req.body;
     console.log("The data of product is : ", req.body);
+
+    const images = req.files.map((file) => file.path);
 
     const product = await productModel.create({
       name,
@@ -75,6 +77,11 @@ const deleteProductController = async (req, res) => {
       });
     }
 
+    for (const imageUrl of product.images) {
+      const publicId = imageUrl.split("/").slice(-2).join("/").split(".")[0];
+      await cloudinary.uploader.destroy(publicId);
+    }
+
     await productModel.findByIdAndDelete(req.params.id);
 
     res.status(200).json({
@@ -95,6 +102,17 @@ const updateProductController = async (req, res) => {
       return res.status(404).json({
         message: "Product not found",
       });
+    }
+
+    let images = product.images;
+
+    if (req.files && req.files.length > 0) {
+      for (const imageUrl of product.images) {
+        const publicId = imageUrl.split("/").slice(-2).join("/").split(".")[0];
+        await cloudinary.uploader.destroy(publicId);
+      }
+
+      images = req.files.map((file) => file.path);
     }
 
     const updatedProduct = await productModel.findByIdAndUpdate(
